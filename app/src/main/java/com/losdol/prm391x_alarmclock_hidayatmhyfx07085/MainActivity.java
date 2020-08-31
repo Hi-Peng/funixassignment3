@@ -5,8 +5,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 
 import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                                 Calendar cal = Calendar.getInstance();
                                 cal.set(0,0,0, mHour, mMinute);
                                 long millis = cal.getTimeInMillis();
-
+                                setTimer();
                                 Log.d("timeset", "Jam" + DateFormat.format("hh:mm aa", cal));
                             }
                         }, 12, 0, true
@@ -77,5 +79,9 @@ public class MainActivity extends AppCompatActivity {
         if(cal_alarm.before(cal_now)){
             cal_alarm.add(Calendar.DATE, 1);
         }
+
+        Intent i = new Intent(MainActivity.this, broadcastReceiverApp.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 244444, i, 0);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, cal_alarm.getTimeInMillis(), pendingIntent);
     }
 }
