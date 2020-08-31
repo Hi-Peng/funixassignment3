@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.Toolbar
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="@color/colorPrimary"
+    android:id="@+id/custom_toolbar"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:text="@string/alarm"
+            android:textSize="@dimen/mainTextSize"
+            android:fontFamily="sans-serif-black"
+            android:textColor="@color/clouds"/>
+
+        <ImageView
+            android:clickable="true"
+            android:focusable="true"
+            android:id="@+id/add_button"
+            android:layout_marginEnd="10dp"
+            android:layout_gravity="right|center"
+            android:layout_width="@dimen/vectorSize"
+            android:layout_height="@dimen/vectorSize"
+            android:src="@drawable/add_circle" />
+    </FrameLayout>
+</androidx.appcompat.widget.Toolbar>
+
