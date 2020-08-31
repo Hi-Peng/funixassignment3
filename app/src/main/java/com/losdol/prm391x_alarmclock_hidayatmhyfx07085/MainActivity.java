@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -26,17 +27,18 @@ public class MainActivity extends AppCompatActivity {
     ImageView addIcon;
 
     //Init for the timepicker
-    int mHour, mMinute;
+    int mHour, mMinute, state;
 
     //init for sqlite
-//    DatabaseHelper mDatabaseHelper;
+    DatabaseHelper mDatabaseHelper;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        state = 1;
         toolbar = (Toolbar) findViewById(R.id.custom_toolbar);
         addIcon = (ImageView) findViewById(R.id.add_button);
-
+        mDatabaseHelper = new DatabaseHelper(this);
         addIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -50,8 +52,15 @@ public class MainActivity extends AppCompatActivity {
                                 Calendar cal = Calendar.getInstance();
                                 cal.set(0,0,0, mHour, mMinute);
                                 long millis = cal.getTimeInMillis();
+                                boolean isInserted = mDatabaseHelper.addData(millis, state);
+
+                                if(isInserted == true)
+                                    Toast.makeText(MainActivity.this,"Data Inserted",Toast.LENGTH_LONG).show();
+                                else
+                                    Toast.makeText(MainActivity.this,"Data not Inserted",Toast.LENGTH_LONG).show();
+
                                 setTimer();
-                                Log.d("timeset", "Jam" + DateFormat.format("hh:mm aa", cal));
+                                Log.d("timeset", "Jam" + millis);
                             }
                         }, 12, 0, true
                 );
