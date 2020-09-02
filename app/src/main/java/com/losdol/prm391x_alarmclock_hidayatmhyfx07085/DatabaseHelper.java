@@ -52,7 +52,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ArrayList<Long> array_list = new ArrayList<Long>();
         Cursor res = db.rawQuery( "SELECT * FROM "+ TABLE_NAME, null );
         res.moveToFirst();
-        while(res.isAfterLast() == false) {
+        while(!res.isAfterLast()) {
             array_list.add(res.getLong((res.getColumnIndex("ALARM"))));
             res.moveToNext();
         }
@@ -64,7 +64,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ArrayList<Long> array_list = new ArrayList<Long>();
         Cursor res = db.rawQuery( "SELECT * FROM "+ TABLE_NAME, null );
         res.moveToFirst();
-        while(res.isAfterLast() == false) {
+        while(!res.isAfterLast()) {
             array_list.add(res.getLong((res.getColumnIndex("ID"))));
             res.moveToNext();
         }

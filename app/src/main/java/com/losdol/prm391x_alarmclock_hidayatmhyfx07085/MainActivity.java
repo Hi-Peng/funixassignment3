@@ -20,9 +20,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     //Setting up custom toolbar
     Toolbar toolbar;
     ImageView addIcon, clearIcon;
+
     ListView listView;
 
     //Init for the timepicker
@@ -56,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         addIcon = (ImageView) findViewById(R.id.add_button);
         clearIcon = (ImageView) findViewById(R.id.clear_button);
 
+
         mDatabaseHelper = new DatabaseHelper(this);
         ArrayList millisdb = mDatabaseHelper.getAlarm();
         ArrayList idDb = mDatabaseHelper.getid();
@@ -65,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         addIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Fragment dialog thath containt timepicker
                 TimePickerDialog timePickerDialog = new TimePickerDialog(
                         MainActivity.this,
                         new TimePickerDialog.OnTimeSetListener() {
@@ -75,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
                                 Calendar cal = Calendar.getInstance();
                                 cal.set(0,0,0, mHour, mMinute);
                                 long millis = cal.getTimeInMillis();
+
                                 boolean isInserted = mDatabaseHelper.addData(millis, state);
 
                                 if(isInserted == true)
@@ -82,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
                                 else
                                     Toast.makeText(MainActivity.this,"Data not Inserted",Toast.LENGTH_LONG).show();
 
-                                setTimer();
                                 adapter.clear();
                                 adapter.addAll(mDatabaseHelper.getAlarm());
                                 adapter.notifyDataSetChanged();
@@ -109,32 +114,36 @@ public class MainActivity extends AppCompatActivity {
                 listView.refreshDrawableState();
             }
         });
-        setSupportActionBar(toolbar);
+
     }
 
-    public void setTimer(){
+    public void setAlarm(long millis, int reqId){
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Date date = new Date();
+
 
         Calendar cal_alarm = Calendar.getInstance();
         Calendar cal_now = Calendar.getInstance();
 
         cal_alarm.setTime(date);
         cal_now.setTime(date);
-
-        cal_alarm.set(Calendar.HOUR_OF_DAY, mHour);
-        cal_alarm.set(Calendar.MINUTE, mMinute);
-        cal_alarm.set(Calendar.SECOND, 0);
+        int millisintegre = (int) millis;
+        cal_alarm.set(Calendar.MILLISECOND, millisintegre);//convert to int
+//        cal_alarm.set(Calendar.MINUTE, min);
+//        cal_alarm.set(Calendar.SECOND, 0);
 
         if(cal_alarm.before(cal_now)){
             cal_alarm.add(Calendar.DATE, 1);
         }
 
         Intent i = new Intent(MainActivity.this, broadcastReceiverApp.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 244444, i, 0);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, cal_alarm.getTimeInMillis(), pendingIntent);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, reqId, i, 0);
+        alarmManager.set(AlarmManager.RTC, cal_alarm.getTimeInMillis(), pendingIntent); //I prefer to use RTC instead RTC_WAKEUP
     }
 
+    public void unsetAlarm(int hrs, int min, int reqId){
+
+    }
 
     class listAdapter extends ArrayAdapter<Long> {
         Context context;
@@ -150,12 +159,24 @@ public class MainActivity extends AppCompatActivity {
         //Here's where I make the custom view for the list view
         @NonNull
         @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View customRow =  layoutInflater.inflate(R.layout.custom_list, parent, false);
 
             TextView iTitle = customRow.findViewById(R.id.alarm_time);
+            Switch onOff = customRow.findViewById(R.id.alarm_switch);
 
+            onOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (b){
+                        setAlarm(Long.valueOf(String.valueOf(rTime.get(position))), position);
+                        Toast.makeText(getApplicationContext(),"Alarm " + position+1 + " On",Toast.LENGTH_LONG).show(); //I think it's very crude
+                    }
+                    else
+                        Toast.makeText(getApplicationContext(),"Alarm " + position+1 + " Off",Toast.LENGTH_LONG).show();
+                }
+            });
             //millis to date conversion
             SimpleDateFormat format = new SimpleDateFormat("HH:mm");
             Calendar calendar = Calendar.getInstance();

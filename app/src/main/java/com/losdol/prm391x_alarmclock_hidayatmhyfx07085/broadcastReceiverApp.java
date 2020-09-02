@@ -9,6 +9,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Vibrator;
+import android.widget.Switch;
 
 public class broadcastReceiverApp extends BroadcastReceiver {
     @Override
@@ -16,6 +17,7 @@ public class broadcastReceiverApp extends BroadcastReceiver {
         Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(2000);
 
+        //Add notification to the notification bar, but i don't know it doesn't work
         Notification notification = new Notification.Builder(context)
                 .setContentTitle("Alarm is on")
                 .setContentText("Alarm is setup")
@@ -25,6 +27,7 @@ public class broadcastReceiverApp extends BroadcastReceiver {
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(0, notification);
 
+        //Ringtone notification
         Uri notif = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         Ringtone r = RingtoneManager.getRingtone(context, notif);
         r.play();
