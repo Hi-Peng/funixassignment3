@@ -141,8 +141,11 @@ public class MainActivity extends AppCompatActivity {
         alarmManager.set(AlarmManager.RTC, cal_alarm.getTimeInMillis(), pendingIntent); //I prefer to use RTC instead RTC_WAKEUP
     }
 
-    public void unsetAlarm(int hrs, int min, int reqId){
-
+    public void unsetAlarm(int reqId){
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent i = new Intent(MainActivity.this, broadcastReceiverApp.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, reqId, i, 0);
+        alarmManager.cancel(pendingIntent);
     }
 
     class listAdapter extends ArrayAdapter<Long> {
@@ -174,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(),"Alarm " + position+1 + " On",Toast.LENGTH_LONG).show(); //I think it's very crude
                     }
                     else
+                        unsetAlarm(position);
                         Toast.makeText(getApplicationContext(),"Alarm " + position+1 + " Off",Toast.LENGTH_LONG).show();
                 }
             });
