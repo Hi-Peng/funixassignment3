@@ -1,5 +1,7 @@
 package com.losdol.prm391x_alarmclock_hidayatmhyfx07085;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
@@ -9,36 +11,57 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.media.Image;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     //Setting up custom toolbar
     Toolbar toolbar;
-    ImageView addIcon;
+    ImageView addIcon, clearIcon;
+    ListView listView;
 
     //Init for the timepicker
     int mHour, mMinute, state;
 
     //init for sqlite
     DatabaseHelper mDatabaseHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        state = 1;
+
+        listView = (ListView) findViewById(R.id.alarmList);
         toolbar = (Toolbar) findViewById(R.id.custom_toolbar);
         addIcon = (ImageView) findViewById(R.id.add_button);
+        clearIcon = (ImageView) findViewById(R.id.clear_button);
+
         mDatabaseHelper = new DatabaseHelper(this);
+        ArrayList millisdb = mDatabaseHelper.getAlarm();
+        ArrayList idDb = mDatabaseHelper.getid();
+        final MainActivity.listAdapter adapter = new MainActivity.listAdapter(getApplicationContext(), millisdb);
+        listView.setAdapter(adapter);
+
         addIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -55,17 +78,35 @@ public class MainActivity extends AppCompatActivity {
                                 boolean isInserted = mDatabaseHelper.addData(millis, state);
 
                                 if(isInserted == true)
-                                    Toast.makeText(MainActivity.this,"Data Inserted",Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getApplicationContext(),"Data Inserted",Toast.LENGTH_LONG).show();
                                 else
                                     Toast.makeText(MainActivity.this,"Data not Inserted",Toast.LENGTH_LONG).show();
 
                                 setTimer();
+                                adapter.clear();
+                                adapter.addAll(mDatabaseHelper.getAlarm());
+                                adapter.notifyDataSetChanged();
+                                listView.invalidateViews();
+                                listView.refreshDrawableState();
                                 Log.d("timeset", "Jam" + millis);
                             }
                         }, 12, 0, true
+
                 );
                 timePickerDialog.updateTime(mHour, mMinute);
                 timePickerDialog.show();
+            }
+        });
+
+        clearIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDatabaseHelper.deleteAll();
+                adapter.clear();
+                adapter.addAll(mDatabaseHelper.getAlarm());
+                adapter.notifyDataSetChanged();
+                listView.invalidateViews();
+                listView.refreshDrawableState();
             }
         });
         setSupportActionBar(toolbar);
@@ -93,4 +134,40 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 244444, i, 0);
         alarmManager.set(AlarmManager.RTC_WAKEUP, cal_alarm.getTimeInMillis(), pendingIntent);
     }
+
+
+    class listAdapter extends ArrayAdapter<Long> {
+        Context context;
+        ArrayList rTime;
+
+
+        listAdapter(Context c, ArrayList time){
+            super(c, R.layout.custom_list, R.id.alarm_time, time);
+            this.context = c;
+            this.rTime = time;
+        }
+
+        //Here's where I make the custom view for the list view
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View customRow =  layoutInflater.inflate(R.layout.custom_list, parent, false);
+
+            TextView iTitle = customRow.findViewById(R.id.alarm_time);
+
+            //millis to date conversion
+            SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+            Calendar calendar = Calendar.getInstance();
+            long millisRaw = Long.valueOf(String.valueOf(rTime.get(position)));
+            calendar.setTimeInMillis(millisRaw);
+
+//            Actually it will call the id and replace with Id in the db, but it was error
+            iTitle.setText(format.format(calendar.getTime()));
+
+            return customRow;
+        }
+    }
 }
+
+

@@ -22,15 +22,30 @@
             android:fontFamily="sans-serif-black"
             android:textColor="@color/clouds"/>
 
-        <ImageView
-            android:clickable="true"
-            android:focusable="true"
-            android:id="@+id/add_button"
-            android:layout_marginEnd="10dp"
-            android:layout_gravity="right|center"
-            android:layout_width="@dimen/vectorSize"
-            android:layout_height="@dimen/vectorSize"
-            android:src="@drawable/add_circle" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center|end">
+            <ImageView
+                android:clickable="true"
+                android:focusable="true"
+                android:id="@+id/clear_button"
+                android:layout_gravity="right|center"
+                android:layout_width="@dimen/vectorSize"
+                android:layout_height="@dimen/vectorSize"
+                android:src="@drawable/ic_delete_black_24dp" />
+            <ImageView
+                android:clickable="true"
+                android:focusable="true"
+                android:id="@+id/add_button"
+                android:layout_marginEnd="10dp"
+                android:layout_gravity="right|center"
+                android:layout_width="@dimen/vectorSize"
+                android:layout_height="@dimen/vectorSize"
+                android:src="@drawable/add_circle" />
+        </LinearLayout>
+
     </FrameLayout>
 </androidx.appcompat.widget.Toolbar>
 
